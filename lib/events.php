@@ -18,9 +18,25 @@ function backup_event_group_delete($event, $object_type, $object) {
     $data = array(
         'entities' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}entities WHERE guid='$object->guid'"),
         'groups_entity' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}objects_entity WHERE guid='$object->guid'"),
-        'metadata' => get_data("SELECT * FROM {$CONFIG->dbprefix}metadata WHERE entity_guid='$object->guid'"),
         'private_settings' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}objects_entity WHERE guid='$object->guid'"),
     );   
+
+    $metastrings = array();
+    $metadata = get_data("SELECT * FROM {$CONFIG->dbprefix}metadata WHERE entity_guid='$object->guid'");
+    foreach ($metadata as $object) {
+        if (!in_array($object->name_id, $metastrings)) {
+            $metastrings[] = $object->name_id;
+        }
+        if (!in_array($object->value_id, $metastrings)) {
+            $metastrings[] = $object->name_id;
+        }
+    }
+
+    $data['metadata'] = $metadata;
+
+    if (count($metastrings) > 0) {
+        $data['metastrings'] = get_data("SELECT * FROM {$CONFIG->dbprefix}metastrings WHERE id IN (" . implode(',', $metastrings) . ")");
+    }
 
     return backup_insert($object_type, $data);
 }
@@ -38,9 +54,25 @@ function backup_event_object_delete($event, $object_type, $object) {
     $data = array(
         'entities' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}entities WHERE guid='$object->guid'"),
         'objects_entity' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}objects_entity WHERE guid='$object->guid'"),
-        'metadata' => get_data("SELECT * FROM {$CONFIG->dbprefix}metadata WHERE entity_guid='$object->guid'"),
         'private_settings' => get_data("SELECT * FROM {$CONFIG->dbprefix}private_settings WHERE entity_guid='$object->guid'")
     );
+
+    $metastrings = array();
+    $metadata = get_data("SELECT * FROM {$CONFIG->dbprefix}metadata WHERE entity_guid='$object->guid'");
+    foreach ($metadata as $object) {
+        if (!in_array($object->name_id, $metastrings)) {
+            $metastrings[] = $object->name_id;
+        }
+        if (!in_array($object->value_id, $metastrings)) {
+            $metastrings[] = $object->value_id;
+        }
+    }
+
+    $data['metadata'] = $metadata;
+
+    if (count($metastrings) > 0) {
+        $data['metastrings'] = get_data("SELECT * FROM {$CONFIG->dbprefix}metastrings WHERE id IN (" . implode(',', $metastrings) . ")");
+    }
 
     return backup_insert($object_type, $data);
 }
@@ -55,9 +87,11 @@ function backup_event_object_delete($event, $object_type, $object) {
 function backup_event_annotation_delete($event, $object_type, $object) {
     global $CONFIG;
 
-    $data = array(
-        'annotations' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}annotations WHERE id='$object->id'")
-    );
+    $annotation = get_data_row("SELECT * FROM {$CONFIG->dbprefix}annotations WHERE id='$object->id'");
+    $metastrings = get_data("SELECT * FROM {$CONFIG->dbprefix}metastrings WHERE id IN (" . $annotation->name_id . "," . $annotation->value_id . ")");
 
-    return backup_insert('annotation', $data);    
+    return backup_insert('annotation', array(
+        'annotations' => $annotation,
+        'metastrings' => $metastrings
+    ));
 }

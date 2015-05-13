@@ -140,28 +140,30 @@ function backup_restore_transaction($transaction) {
         }
 
         $queries = array();
-        foreach ($tables as $table) {
-            if (is_array($data[$table])) {
-                foreach ($data[$table] as $row) {
-                    $queries[] = backup_parsesql($table, $row);
+        foreach (array_keys($data) as $table) {
+            // convert single element to an array containing the single element
+            if (!is_array($data[$table])) {
+                $data[$table] = array($data[$table]);
+            }
+
+            foreach ($data[$table] as $row) {
+                if ($table == 'metastrings') {
+                    $ignore = true;
+                } else {
+                    $ignore = false;
                 }
-            } else {
-                $queries[] = backup_parsesql($table, $data[$table]);
+                
+                $queries[] = backup_parsesql($table, $row, $ignore);
             }
         }
 
-        $return = true;
         foreach ($queries as $query) {
-            if ($return == true) {
-                $return = insert_data($query);
-                elgg_log("Could not restore ElggBackup (" . $query . ")", 'WARNING');
-            }
+            insert_data($query);
         }
     }
 
-    $return = backup_delete_transaction($transaction);
-
-    return $return;
+    backup_delete_transaction($transaction);
+    return true;
 }
 
 /**
