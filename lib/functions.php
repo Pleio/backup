@@ -20,7 +20,7 @@ function backup_insert($type, $data) {
     $site = $CONFIG->site_id;
     $time = time();
     $performed_by = elgg_get_logged_in_user_guid();
-    $data = serialize($data);
+    $data = mysql_real_escape_string(serialize($data));
 
     $query = "INSERT into {$CONFIG->dbprefix}backup (transaction_id,site_guid,time_created,performed_by,type,data) " . 
              "VALUES ('$transaction_id', $site, $time, $performed_by, '$type', '$data')";
