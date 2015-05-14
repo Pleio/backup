@@ -135,8 +135,8 @@ function backup_restore_transaction($transaction) {
             }
 
             foreach ($data[$table] as $row) {
-                if (in_array($table, array('metastrings', 'entity_relationships')) {
-                    // insert with ignore if row already exists
+                if (in_array($table, array('metastrings', 'entity_relationships'))) {
+                    // insert with ignore if row
                     $ignore = true;
                 } else {
                     $ignore = false;
