@@ -127,18 +127,6 @@ function backup_restore_transaction($transaction) {
     foreach ($objects as $object) {
         $data = unserialize($object->data);
 
-        switch ($object->type) {
-            case 'object':
-                $tables = array('entities', 'objects_entity', 'metadata', 'metastrings');
-                break;
-            case 'relationship':
-                $tables = array('entity_relationships');
-                break;
-            case 'annotation':
-                $tables = array('annotations', 'metastrings');
-                break;
-        }
-
         $queries = array();
         foreach (array_keys($data) as $table) {
             // convert single element to an array containing the single element
@@ -147,7 +135,8 @@ function backup_restore_transaction($transaction) {
             }
 
             foreach ($data[$table] as $row) {
-                if ($table == 'metastrings') {
+                if (in_array($table, array('metastrings', 'entity_relationships')) {
+                    // insert with ignore if row already exists
                     $ignore = true;
                 } else {
                     $ignore = false;
