@@ -18,8 +18,8 @@ function backup_event_group_delete($event, $object_type, $object) {
     $data = array(
         'entities' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}entities WHERE guid=$object->guid"),
         'groups_entity' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}groups_entity WHERE guid=$object->guid"),
-        'private_settings' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}private_settings WHERE entity_guid=$object->guid"),
-        'entity_relationships' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}entity_relationships WHERE guid_one=$object->guid OR guid_two=$object->guid")
+        'private_settings' => get_data("SELECT * FROM {$CONFIG->dbprefix}private_settings WHERE entity_guid=$object->guid"),
+        'entity_relationships' => get_data("SELECT * FROM {$CONFIG->dbprefix}entity_relationships WHERE guid_one=$object->guid OR guid_two=$object->guid")
     );   
 
     $metastrings = array();
@@ -56,7 +56,7 @@ function backup_event_object_delete($event, $object_type, $object) {
         'entities' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}entities WHERE guid='$object->guid'"),
         'objects_entity' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}objects_entity WHERE guid='$object->guid'"),
         'private_settings' => get_data("SELECT * FROM {$CONFIG->dbprefix}private_settings WHERE entity_guid='$object->guid'"),
-        'entity_relationships' => get_data_row("SELECT * FROM {$CONFIG->dbprefix}entity_relationships WHERE guid_one=$object->guid OR guid_two=$object->guid")        
+        'entity_relationships' => get_data("SELECT * FROM {$CONFIG->dbprefix}entity_relationships WHERE guid_one=$object->guid OR guid_two=$object->guid")        
     );
 
     $metastrings = array();
