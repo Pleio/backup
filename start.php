@@ -9,8 +9,6 @@ require_once(dirname(__FILE__) . '/lib/functions.php');
 require_once(dirname(__FILE__) . '/lib/events.php');
 require_once(dirname(__FILE__) . '/lib/hooks.php');
 
-global $BACKUP_TRANSACTION_ID;
-
 define("BACKUP_DEFAULT_RETENTION", 30);
 
 /**
