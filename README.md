@@ -11,4 +11,3 @@ Install the plugin by copying it to mod/ and then enable it through the admin in
 
 ## Todo
 * Backup and restore for ElggFile objects.
-* Cronjob to remove old backups.

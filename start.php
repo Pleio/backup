@@ -7,8 +7,11 @@
 
 require_once(dirname(__FILE__) . '/lib/functions.php');
 require_once(dirname(__FILE__) . '/lib/events.php');
+require_once(dirname(__FILE__) . '/lib/hooks.php');
 
 global $BACKUP_TRANSACTION_ID;
+
+define("BACKUP_DEFAULT_RETENTION", 30);
 
 /**
  * Initialize the backup plugin and hook on deletion events.
@@ -26,6 +29,8 @@ function backup_init() {
     elgg_register_entity_type('backup', 'object');
 
     elgg_register_action('backup/restore', dirname(__FILE__) . '/actions/backup/restore.php', 'admin');
+
+    elgg_register_plugin_hook_handler("cron", "daily", 'backup_daily_cron_handler');
 }
 
 elgg_register_event_handler('init', 'system', 'backup_init');
