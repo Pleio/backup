@@ -28,7 +28,7 @@ function backup_init() {
 
     elgg_register_action('backup/restore', dirname(__FILE__) . '/actions/backup/restore.php', 'admin');
 
-    elgg_register_plugin_hook_handler("cron", "daily", 'backup_daily_cron_handler');
+    elgg_register_plugin_hook_handler('cron', 'daily', 'backup_daily_cron_handler');
 }
 
 elgg_register_event_handler('init', 'system', 'backup_init');
