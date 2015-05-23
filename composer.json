@@ -1,0 +1,14 @@
+{
+	"name": "pleio/backup",
+	"description": "Backup and restore deleted objects and annotations.",
+	"type": "elgg-plugin",
+	"keywords": ["elgg", "plugin"],
+	"license": "GPL-2.0",
+	"support": {
+		"source": "https://github.com/Pleio/backup",
+		"issues": "https://github.com/Pleio/backup/issues"
+	},
+	"require": {
+		"composer/installers": "^1.0.8"
+	}
+}
