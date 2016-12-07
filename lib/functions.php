@@ -7,7 +7,7 @@
 
 /**
  * Insert data into the backup table
- * 
+ *
  * @param string $type        Type of the object the data is related to
  * @param array  $data        An array of elgg_get_row() stdclasses.
  *
@@ -20,9 +20,11 @@ function backup_insert($type, $data) {
     $site = $CONFIG->site_id;
     $time = time();
     $performed_by = elgg_get_logged_in_user_guid();
-    $data = mysql_real_escape_string(serialize($data));
 
-    $query = "INSERT into {$CONFIG->dbprefix}backup (transaction_id,site_guid,time_created,performed_by,type,data) " . 
+    $link = get_db_link("write");
+    $data = mysqli_real_escape_string($link, serialize($data));
+
+    $query = "INSERT into {$CONFIG->dbprefix}backup (transaction_id,site_guid,time_created,performed_by,type,data) " .
              "VALUES ('$transaction_id', $site, $time, $performed_by, '$type', '$data')";
 
     return insert_data($query);
@@ -30,7 +32,7 @@ function backup_insert($type, $data) {
 
 /**
  * Generate a unique GUID
- * 
+ *
  * @return string unique GUID
  */
 function backup_generate_guid() {
@@ -51,7 +53,7 @@ function backup_generate_guid() {
 
 /**
  * Retrieve the GUID of the current session
- * 
+ *
  * @return string GUID of the current session
  */
 function backup_get_guid() {
@@ -66,7 +68,7 @@ function backup_get_guid() {
 
 /**
  * Get an array of all recent transactions.
- * 
+ *
  * @param int    $limit     limit the number of results
  * @param int    $offset    offset the results
  *
@@ -75,10 +77,10 @@ function backup_get_guid() {
 function backup_get_transactions($limit = 50, $offset = 0) {
     global $CONFIG;
     $site = $CONFIG->site_guid;
-    
+
     $query = "SELECT * FROM {$CONFIG->dbprefix}backup WHERE site_guid=$site GROUP BY transaction_id ORDER BY time_created DESC";
     $query .= " LIMIT " . (int) $offset . ", " . (int) $limit;
-    
+
     $transactions = get_data($query);
 
     $return = array();
@@ -100,9 +102,9 @@ function backup_get_objects($transaction) {
     global $CONFIG;
     $site = $CONFIG->site_guid;
 
-    $query = "SELECT * FROM {$CONFIG->dbprefix}backup WHERE site_guid=$site";    
+    $query = "SELECT * FROM {$CONFIG->dbprefix}backup WHERE site_guid=$site";
     $query .= " AND transaction_id='" . $transaction . "' ORDER BY id";
-    
+
     $objects = get_data($query);
 
     $return = array();
@@ -121,7 +123,7 @@ function backup_get_objects($transaction) {
  * @return bool if backup was restored successfully
  */
 function backup_restore_transaction($transaction) {
-    
+
     $objects = backup_get_objects($transaction);
 
     foreach ($objects as $object) {
@@ -141,7 +143,7 @@ function backup_restore_transaction($transaction) {
                 } else {
                     $ignore = false;
                 }
-                
+
                 $queries[] = backup_parsesql($table, $row, $ignore);
             }
         }
@@ -157,7 +159,7 @@ function backup_restore_transaction($transaction) {
 
 /**
  * Delete a backup for a transaction
- * 
+ *
  * @param string   $transaction   the transaction id.
  *
  * @return bool if backup was removed successfully
@@ -165,15 +167,15 @@ function backup_restore_transaction($transaction) {
 function backup_delete_transaction($transaction) {
     global $CONFIG;
     $site = $CONFIG->site_guid;
-    $query = "DELETE FROM {$CONFIG->dbprefix}backup WHERE site_guid=$site";    
+    $query = "DELETE FROM {$CONFIG->dbprefix}backup WHERE site_guid=$site";
     $query .= " AND transaction_id='" . $transaction . "'";
-    
+
     return delete_data($query);
 }
 
 /**
  * Generate an SQL INSERT query for an elgg_get_row() stdclass.
- * 
+ *
  * @param string   $table   name of the destination table
  * @param class    $entity  elgg_get_row() stdclass
  * @param bool     $ignore  append IGNORE to the insert statement
@@ -182,7 +184,8 @@ function backup_delete_transaction($transaction) {
  */
 function backup_parsesql($table, $entity, $ignore = false) {
     global $CONFIG;
-    
+
+    $link = get_db_link("write");
     $vars = get_object_vars($entity);
 
     if ($ignore == true) {
@@ -199,12 +202,12 @@ function backup_parsesql($table, $entity, $ignore = false) {
             $query .= ",";
         }
     }
-    
+
     $query .= ") VALUES (";
-    
+
     $last_value = end(array_keys($vars));
     foreach ($vars as $key => $value) {
-        $query .= "\"" . mysql_real_escape_string($value) . "\"";
+        $query .= "\"" . mysqli_real_escape_string($link, $value) . "\"";
 
         if ($key != $last_value) {
             $query .= ",";
